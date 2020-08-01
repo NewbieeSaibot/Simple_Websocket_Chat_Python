@@ -1,0 +1,49 @@
+<html>
+    <head>
+        <title>Chat</title>
+    </head>
+    <body onunload="disconnect()">
+        <textarea id="text_area"></textarea>
+        
+        <label> text box </label>            
+        <input id="text_writer" type="text" value="">
+        <button id="send_button" onclick="send_message()"> send </button>
+
+        <script>
+            var connection = new WebSocket('ws://127.0.0.1:5000');
+            var counter = 0;
+            var name = " ";
+            // Log messages from the server
+            connection.onmessage = function (e) {
+                document.getElementById('text_area').value += "\n" + e.data;
+            };
+            //set enter to send message
+            document.addEventListener('keypress', function(e){
+                if(e.which == 13){
+                    send_message();
+                }
+            }, false);
+
+            function send_message(){
+                if(counter == 0){
+                    name = document.getElementById("text_writer").value;
+                }
+                if(counter > 0){
+                    if(counter == 1){
+                        document.getElementById('text_area').value += name + ": " + document.getElementById("text_writer").value;
+                    }else{
+                        document.getElementById('text_area').value += "\n" + name + ": " + document.getElementById("text_writer").value;
+                    }
+                }
+                connection.send(document.getElementById("text_writer").value);
+                document.getElementById("text_writer").value = "";
+                counter++;
+            }
+
+            function disconnect(){
+                connection.send("0");
+            }
+
+        </script>
+    </body>
+</html>
